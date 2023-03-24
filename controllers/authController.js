@@ -1,8 +1,9 @@
 import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken"; // JSON WEB TOKEN
 import UserModel from "../models/User.js"; // Model Import
 
 class AuthController {
-  static async userSignup(req, res) {
+  static async signupUser(req, res) {
     try {
       const { username, email, password } = req.body;
 
@@ -46,10 +47,64 @@ class AuthController {
         .send({ success: false, message: "Something went wrong", error });
     }
   }
-  static async userLogin(req, res) {
+
+  static async loginUser(req, res) {
     try {
-      console.log("hit");
-    } catch (error) {}
+      const { email, password } = req.body;
+
+      // Validate
+      if (!email || !password) {
+        return res.status(422).json({
+          success: false,
+          message: "Unprocessable Entity. All fields are required.",
+        });
+      }
+
+      //Find User
+      const user = await UserModel.findOne({ email });
+
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          message: "Not Found. User isn't registered. Please Sign up!",
+        });
+      }
+
+      // Compare Passwords
+      const passMatch = await bcrypt.compare(password, user.password);
+      if (!passMatch) {
+        return res.status(401).json({
+          success: false,
+          message: "Unauthorized. Invalid Credentials",
+        });
+      }
+
+      // Generate JWT Token
+      const token = await jwt.sign(
+        { user: user._id },
+        process.env.JWT_SECRET_KEY,
+        {
+          expiresIn: "5d",
+        }
+      );
+
+      return res.status(200).json({
+        success: true,
+        message: "User logged in successfully.",
+        user: {
+          username: user.username,
+          email: user.email,
+        },
+        token,
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).send({
+        success: false,
+        message: "Internal Server Error. Something went wrong",
+        error,
+      });
+    }
   }
 }
 
