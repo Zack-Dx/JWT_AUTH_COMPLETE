@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken"; // JSON WEB TOKEN
 import UserModel from "../models/User.js"; // Model Import
 
 class AuthController {
+  // User Sign Up
   static async signupUser(req, res) {
     try {
       const { username, email, password } = req.body;
@@ -48,6 +49,7 @@ class AuthController {
     }
   }
 
+  // User Login
   static async loginUser(req, res) {
     try {
       const { email, password } = req.body;
@@ -105,6 +107,31 @@ class AuthController {
         error,
       });
     }
+  }
+
+  // Change User Password
+  static async changeUserPassword(req, res) {
+    try {
+      const { password, confirmPassword } = req.body;
+
+      // Validate
+      if (!password || !confirmPassword) {
+        return res
+          .status(422)
+          .json({ success: false, message: "All fields are required." });
+      }
+
+      // Pass and ConfirmPassword Match
+
+      if (password !== confirmPassword) {
+        return res
+          .status(404)
+          .json({ success: false, message: "Passwords doesn't match" });
+      }
+
+      // Saving Password
+      const hashPass = await bcrypt.hash(password, 10);
+    } catch (error) {}
   }
 }
 
