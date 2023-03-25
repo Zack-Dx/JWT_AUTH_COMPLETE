@@ -10,8 +10,8 @@ const userAuth = async (req, res, next) => {
         .json({ success: false, message: "Unauthorized User. No Token" });
     }
 
-    const { userId } = jwt.verify(token, process.env.JWT_SECRET_KEY);
-    req.user = await UserModel.findById(userId).select("-password");
+    const { user } = jwt.verify(token, process.env.JWT_SECRET_KEY);
+    req.user = await UserModel.findById(user).select("-password");
     next();
   } catch (error) {
     return res

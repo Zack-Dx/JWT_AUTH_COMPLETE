@@ -89,7 +89,6 @@ class AuthController {
           expiresIn: "5d",
         }
       );
-
       return res.status(200).json({
         success: true,
         message: "User logged in successfully.",
@@ -112,10 +111,10 @@ class AuthController {
   // Change User Password
   static async changeUserPassword(req, res) {
     try {
-      const { password, confirmPassword } = req.body;
+      const { password, confirmpassword } = req.body;
 
       // Validate
-      if (!password || !confirmPassword) {
+      if (!password || !confirmpassword) {
         return res
           .status(422)
           .json({ success: false, message: "All fields are required." });
@@ -123,7 +122,7 @@ class AuthController {
 
       // Pass and ConfirmPassword Match
 
-      if (password !== confirmPassword) {
+      if (password !== confirmpassword) {
         return res
           .status(404)
           .json({ success: false, message: "Passwords doesn't match" });
@@ -131,7 +130,24 @@ class AuthController {
 
       // Saving Password
       const hashPass = await bcrypt.hash(password, 10);
-    } catch (error) {}
+
+      // Changing Pass after Auth
+      await UserModel.findByIdAndUpdate(req.user._id, {
+        $set: { password: hashPass },
+      });
+      return res.status(200).json({
+        success: true,
+        message: "User password changed successfully!",
+      });
+    } catch (error) {
+      console.log(error);
+      return res
+        .status(500)
+        .json({
+          success: false,
+          message: "Something went wrong! Failed to change Password.",
+        });
+    }
   }
 }
 
