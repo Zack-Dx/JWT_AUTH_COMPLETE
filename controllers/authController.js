@@ -206,7 +206,19 @@ class AuthController {
         to: user.email, // list of receivers
         subject: "Password Reset Email", // Subject line
         text: "Here is the link below to reset your password", // plain text body
-        html: `${user.username} <a href=${link}>Click here</a> to reset your password.`, // html body
+        html: `
+        <div style="font-family: Arial, sans-serif; font-size: 16px; color: #333; line-height: 1.5;">
+          <p style="margin-bottom: 30px;">Hello ${user.username},</p>
+          <p style="margin-bottom: 30px;">You recently requested to reset your password.</p>
+          <div style="background-color: #f7f7f7; padding: 20px; margin-bottom: 30px;">
+            <p style="margin-bottom: 30px;">To reset your password, please click the button below:</p>
+            <a href=${link} style="background-color: #007bff; color: #fff; padding: 10px 20px; text-decoration: none; border-radius: 4px; display: inline-block;">Reset Password</a>
+          </div>
+          <p style="margin-bottom: 30px;">This link is valid for 10 minutes.</p>
+          <p style="margin-bottom: 0;">Thanks,</p>
+          <p style="margin-bottom: 30px;">JWT Authentication Test APP.</p>
+        </div>
+      `,
       });
       return res.status(200).json({
         success: true,
