@@ -141,12 +141,33 @@ class AuthController {
       });
     } catch (error) {
       console.log(error);
-      return res
-        .status(500)
-        .json({
+      return res.status(500).json({
+        success: false,
+        message: "Something went wrong! Failed to change Password.",
+      });
+    }
+  }
+
+  // Loggedin User
+  static async loggedinUser(req, res) {
+    try {
+      const user = req.user;
+      if (!user) {
+        return res.status(401).json({
           success: false,
-          message: "Something went wrong! Failed to change Password.",
+          message: "Unauthorized",
         });
+      }
+      return res.status(200).json({
+        success: true,
+        user,
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({
+        success: false,
+        message: "Internal Server Error",
+      });
     }
   }
 }

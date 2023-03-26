@@ -12,5 +12,6 @@ router.post("/signup", AuthController.signupUser);
 router.post("/login", AuthController.loginUser);
 
 // Protected Routes
+router.get("/user", userAuth, AuthController.loggedinUser);
 router.post("/changepassword", userAuth, AuthController.changeUserPassword);
 export default router;
