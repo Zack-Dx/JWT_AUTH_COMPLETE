@@ -10,10 +10,7 @@ import userAuth from "../middlewares/authMiddleware.js";
 // Public Routes
 router.post("/signup", AuthController.signupUser);
 router.post("/login", AuthController.loginUser);
-router.post(
-  "/forgot-password/:id/:token",
-  AuthController.sendUserPasswordResetEmail
-);
+router.post("/forgot-password", AuthController.sendUserPasswordResetEmail);
 router.post(
   "/user-password-reset/:id/:token",
   AuthController.userPasswordReset

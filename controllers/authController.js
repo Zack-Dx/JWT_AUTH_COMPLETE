@@ -194,7 +194,7 @@ class AuthController {
       const token = await jwt.sign({ user: user._id }, secret, {
         expiresIn: "15m",
       });
-      const link = `http://localhost:3000/forgot-password/${user._id}/${token}`;
+      const link = `http://localhost:5600/user-password-reset/${user._id}/${token}`;
       console.log(link);
       return res.status(200).json({
         success: true,
