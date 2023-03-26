@@ -206,7 +206,7 @@ class AuthController {
         to: user.email, // list of receivers
         subject: "Password Reset Email", // Subject line
         text: "Here is the link below to reset your password", // plain text body
-        html: `<a href=${link}>Click here</a> to reset your password.`, // html body
+        html: `${user.username} <a href=${link}>Click here</a> to reset your password.`, // html body
       });
       return res.status(200).json({
         success: true,
