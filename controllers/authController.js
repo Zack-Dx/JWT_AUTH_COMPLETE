@@ -1,6 +1,7 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken"; // JSON WEB TOKEN
 import UserModel from "../models/User.js"; // Model Import
+import transporter from "../config/emailConfig.js";
 
 class AuthController {
   // User Sign Up
@@ -39,7 +40,10 @@ class AuthController {
         .send({
           success: true,
           message: "User registered successfully.",
-          user,
+          user: {
+            username,
+            email,
+          },
         });
     } catch (error) {
       console.log(error);
@@ -192,13 +196,23 @@ class AuthController {
       // Email Send
       const secret = user._id + process.env.JWT_SECRET_KEY;
       const token = await jwt.sign({ user: user._id }, secret, {
-        expiresIn: "15m",
+        expiresIn: "10m",
       });
       const link = `http://localhost:5600/user-password-reset/${user._id}/${token}`;
-      console.log(link);
+
+      // Send Email
+      let info = await transporter.sendMail({
+        from: process.env.EMAIL_USER, // sender address
+        to: user.email, // list of receivers
+        subject: "Password Reset Email", // Subject line
+        text: "Here is the link below to reset your password", // plain text body
+        html: `<a href=${link}>Click here</a> to reset your password.`, // html body
+      });
       return res.status(200).json({
         success: true,
-        message: "Password reset link sent successfully.",
+        message:
+          "Password reset link has been sent successfully, please reset your password within 10 minutes.",
+        info,
       });
     } catch (error) {
       console.log(error);
