@@ -170,6 +170,105 @@ class AuthController {
       });
     }
   }
+
+  // Forgot Password resend email
+
+  static async sendUserPasswordResetEmail(req, res) {
+    try {
+      const { email } = req.body;
+      // Validate
+      if (!email) {
+        return res
+          .status(400)
+          .json({ success: false, message: "Email field is required." });
+      }
+      // Email Check
+      const user = await UserModel.findOne({ email });
+      if (!user) {
+        return res
+          .status(404)
+          .json({ success: false, message: "Email isn't registered." });
+      }
+      // Email Send
+      const secret = user._id + process.env.JWT_SECRET_KEY;
+      const token = await jwt.sign({ user: user._id }, secret, {
+        expiresIn: "15m",
+      });
+      const link = `http://localhost:3000/forgot-password/${user._id}/${token}`;
+      console.log(link);
+      return res.status(200).json({
+        success: true,
+        message: "Password reset link sent successfully.",
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({
+        success: false,
+        message: "Internal Server Error. Something went wrong.",
+        error,
+      });
+    }
+  }
+
+  // Forgot Password Save
+
+  static async userPasswordReset(req, res) {
+    try {
+      const { password, confirmPassword } = req.body;
+      if (password !== confirmPassword) {
+        return res.status(400).json({
+          success: false,
+          message: "Passwords do not match.",
+        });
+      }
+
+      const { id, token } = req.params;
+      const user = await UserModel.findById(id);
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          message: "User not found.",
+        });
+      }
+
+      // Generating Secret to authenticate
+      const new_secret = user._id + process.env.JWT_SECRET_KEY;
+
+      try {
+        const verifyToken = await jwt.verify(token, new_secret);
+        if (!verifyToken) {
+          return res.status(401).json({
+            success: false,
+            message: "Invalid or expired token.",
+          });
+        }
+      } catch (error) {
+        return res.status(401).json({
+          success: false,
+          message: "Invalid or expired token.",
+        });
+      }
+
+      // Updating Password
+      const newPass = await bcrypt.hash(password, 10);
+      await UserModel.findByIdAndUpdate(user._id, {
+        $set: {
+          password: newPass,
+        },
+      });
+
+      return res.status(200).json({
+        success: true,
+        message: "Password reset successfully.",
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({
+        success: false,
+        message: "Internal Server Error. Something went wrong",
+      });
+    }
+  }
 }
 
 export default AuthController;
