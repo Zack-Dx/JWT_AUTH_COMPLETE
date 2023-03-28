@@ -112,6 +112,26 @@ class AuthController {
     }
   }
 
+  // User Logout
+  static async logoutUser(req, res) {
+    try {
+      // Clear the user's token from the cookies
+      res.clearCookie("auth_token");
+
+      return res.status(200).json({
+        success: true,
+        message: "User logged out successfully.",
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).send({
+        success: false,
+        message: "Internal Server Error. Something went wrong",
+        error,
+      });
+    }
+  }
+
   // Change User Password
   static async changeUserPassword(req, res) {
     try {
