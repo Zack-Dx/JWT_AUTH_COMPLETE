@@ -2,6 +2,7 @@ import dotenv from "dotenv";
 dotenv.config();
 import express from "express";
 import cors from "cors";
+import helmet from "helmet";
 import cookieParser from "cookie-parser";
 import router from "./routes/web.js";
 import connectDB from "./database/connectDB.js";
@@ -11,6 +12,7 @@ const MONGO_DB_URI = process.env.MONGO_DB_URI;
 const PORT = process.env.PORT || 6000;
 
 // Middlewares
+app.use(helmet());
 app.use(cors());
 app.use(cookieParser());
 app.use(express.json());
